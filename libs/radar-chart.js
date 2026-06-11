@@ -1,7 +1,7 @@
 // from https://gist.github.com/nbremer/21746a9668ffdf6d8242
 // adapted to use a static white background and d3 7.9.0
 
-function RadarChart(id, data, options) {
+export function RadarChart(id, data, options) {
   var cfg = {
     w: 600, //Width of the circle
     h: 600, //Height of the circle

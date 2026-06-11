@@ -5,10 +5,11 @@
 import _style from "./style.js";
 import { default as d3Fisheye } from "./libs/d3-fisheye-2.1.2.js";
 import { default as _ } from "./libs/underscore-1.13.6.js";
+import { RadarChart } from "./libs/radar-chart.js";
+
+var football;
 
 async function getData() {
-  const _data = await (await fetch("data/data.json")).json();
-  const football = await (await fetch("data/football.json")).json();
   const data = [];
 
   football.nodes.forEach((n) => {
@@ -53,29 +54,72 @@ function nodesInView(cy) {
 }
 
 function magicLens(cy, lensActivity, centre, radius) {
+  if (lensActivity == 0){
+    return;
+  }
+
+  // get all nodes that are within the lens
+  let insideNodes = cy.collection();
+  cy.nodes().forEach((n) => {
+    const node = n.renderedPosition(); // Careful: other position functions may invoke different coordinate systems
+    
+    if (isInCircle(centre, radius, node)){
+      insideNodes = insideNodes.union(n);
+    }
+  });
+
   if (lensActivity == 1){
+    document.querySelectorAll('.radarChart').forEach(e => e.remove());
+    // draw all new star charts
+    insideNodes.forEach((n) => {
+      drawStarChart(n);
+    })
+
     // showcase the starplots
   } else if (lensActivity == 2){
     cy.nodes().removeClass('magic');
     cy.edges().removeClass('magic');
-
-    let insideNodes = cy.collection();
-    cy.nodes().forEach((n) => {
-      const node = n.renderedPosition(); // Careful: other position functions may invoke different coordinate systems
-      
-      if (isInCircle(centre, radius, node)){
-        insideNodes = insideNodes.union(n);
-        n.addClass('magic');
-      }
-    });
-
-    insideNodes.connectedEdges().forEach((e) => {
-      e.addClass('magic');
-    })
+    insideNodes.addClass('magic');
+    insideNodes.connectedEdges().addClass('magic');
   }
 }
 
+function drawStarChart(n) {
+  const data = football.nodes.find(p => p.id == n.id());
+
+  const radarData = Object.entries(data)
+      .filter(([key]) => key !== "id" && key !== "label")
+      .map(([key, value]) => ({
+          axis: key,
+          value: value
+      }));
+
+
+  var radarChartOptions = {
+    w: n.renderedWidth(),
+    h: n.renderedHeight(),
+    margin: {top: 0, right: 0, bottom: 0, left: 0},
+    dotRadius: 2, 
+  };   
+
+  const container = document.createElement("div");
+  container.className = "radarChart";
+
+  // set position of star chart
+  // offset by half of width/height to counteract built-in radar functionality
+  container.style.position = "absolute";
+  container.style.left = `${n.renderedPosition().x-n.renderedWidth()/2}px`;
+  container.style.top = `${n.renderedPosition().y-n.renderedHeight()/2}px`;
+  document.body.appendChild(container);
+
+  const id = `radar-${n.id()}`;
+  container.id = id;
+  RadarChart(`#${id}`, [radarData], radarChartOptions);
+}
+
 async function main() {
+  football = await (await fetch("data/football.json")).json();
+
   const data = await getData();
   let lensActivity = 0;
 
