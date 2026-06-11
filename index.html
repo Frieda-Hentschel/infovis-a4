@@ -4,27 +4,53 @@
     <title>Information Visualization - Zooming and Lenses</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
-    
+  <body>    
     <!-- the lens is simulated with an svg circle --> 
-    <svg class="cy" width="10000" height="10000">
-      <circle 
-        id="lens" 
-        class="cy" 
-        cx="50" 
-        cy="50" 
-        r="40" 
-        stroke="green" 
-        stroke-width="1" 
-        fill="none" 
-      />
-    </svg>
+    <div id="lens-container">
+      <svg class="cy" width="10000" height="10000">
+        <circle 
+          id="lens" 
+          class="cy" 
+          cx="100" 
+          cy="100" 
+          r="60" 
+          stroke="green" 
+          stroke-width="1" 
+          fill="none" 
+        />
+      </svg>
+    </div>
     
     <!-- cytoscape draws the graph in this div -->
     <div class="cy" id="cy"></div>
     
     
     <div id="config" class="config">
+      <div class="header">Magic Lens</div>
+      <fieldset>
+        <legend>Size:</legend>
+        <input id="slider" type="range" min="30" max="200" value="60" step="1" disabled>
+      </fieldset>
+
+      <fieldset>
+        <legend>Action:</legend>
+
+        <div>
+          <input type="radio" id="inactive" name="lens" value="inactive" checked/>
+          <label for="inactive">Inactive</label>
+        </div>
+
+        <div>
+          <input type="radio" id="node" name="lens" value="node"/>
+          <label for="node">Node Change</label>
+        </div>
+
+        <div>
+          <input type="radio" id="edge" name="lens" value="edge"/>
+          <label for="edge">Edge Highlight</label>
+        </div>
+    </fieldset>
+
       <!-- 
 
         your controls can go here  
@@ -45,4 +71,5 @@
   <!-- the magic goes in these files! -->
   <script src="style.js" type="module"></script>
   <script src="script.js" type="module"></script>
+
 </html>

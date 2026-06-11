@@ -54,6 +54,7 @@ function nodesInView(cy) {
 
 async function main() {
   const data = await getData();
+  let lensActivity = false;
 
   const cy = cytoscape({
     container: document.getElementById("cy"),
@@ -89,6 +90,38 @@ async function main() {
 
   });
 
+  let svg = d3.select("#lens-container").select("svg");
+  let slider = document.getElementById("slider");
+
+  slider.addEventListener("input", (e) => {
+      svg.select("#lens")
+          .attr("r", e.target.value);
+  });
+
+  document.querySelectorAll('input[name="lens"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+      var selectedOption = document.querySelector('input[name="lens"]:checked').value;
+          // Perform actions based on the selectedOption value
+      if (selectedOption === "inactive") {
+        lensActivity = false;
+        svg.select("#lens")
+          .attr("cx", 100)
+          .attr("cy", 100);
+        slider.value = 60;
+        svg.select("#lens")
+          .attr("r", 60);
+        slider.disabled = true;
+      } else {
+        lensActivity = true;
+        slider.disabled = false;
+      }
+      if (selectedOption === "node") {
+      } else if (selectedOption === "edge") {
+      }
+    }
+    );
+});
+
   cy.on("mousemove", _.throttle(e => {
     const mouse = { x: e.originalEvent.x, y: e.originalEvent.y };
     console.log(`Mouse position: [x: ${mouse.x}, y: ${mouse.y}]`);
@@ -98,9 +131,16 @@ async function main() {
 
       // console.log(`Node position: [x: ${node.x}, y: ${node.y}]`);
     });
+
+    if (lensActivity){
+      svg.select("#lens")
+          .attr("cx", mouse.x)
+          .attr("cy", mouse.y);
+    }
     
     /* 
       Your code also goes here! 
+      
 
       HINTs: 
         1. use the "isInCircle" function defined above to calculate whether a node is inside the lens! 
