@@ -43,12 +43,14 @@ const _style = [{
 }, {
   "selector": "node.magic",
   "style": {
+    "background-color": "red",
     // your magic lens effects for nodes go here! 
     // See https://js.cytoscape.org/#style for all options
   }
 }, {
   "selector": "edge.magic",
   "style": {
+    "line-color": "red",
     // your magic lens effects for edges go here! 
     // See https://js.cytoscape.org/#style for all options
   }

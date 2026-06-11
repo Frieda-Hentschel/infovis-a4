@@ -52,9 +52,32 @@ function nodesInView(cy) {
   })
 }
 
+function magicLens(cy, lensActivity, centre, radius) {
+  if (lensActivity == 1){
+    // showcase the starplots
+  } else if (lensActivity == 2){
+    cy.nodes().removeClass('magic');
+    cy.edges().removeClass('magic');
+
+    let insideNodes = cy.collection();
+    cy.nodes().forEach((n) => {
+      const node = n.renderedPosition(); // Careful: other position functions may invoke different coordinate systems
+      
+      if (isInCircle(centre, radius, node)){
+        insideNodes = insideNodes.union(n);
+        n.addClass('magic');
+      }
+    });
+
+    insideNodes.connectedEdges().forEach((e) => {
+      e.addClass('magic');
+    })
+  }
+}
+
 async function main() {
   const data = await getData();
-  let lensActivity = false;
+  let lensActivity = 0;
 
   const cy = cytoscape({
     container: document.getElementById("cy"),
@@ -77,6 +100,8 @@ async function main() {
   cy.on("zoom", e => {
     const zoom_level = cy.zoom();
     console.log(`Zoom level: ${zoom_level}`);
+
+    magicLens(cy, lensActivity, centre, radius);
     
     /* 
       Your code goes here! 
@@ -91,32 +116,42 @@ async function main() {
   });
 
   let svg = d3.select("#lens-container").select("svg");
+  let lens = svg.select("#lens");
   let slider = document.getElementById("slider");
 
+  let radius = lens.attr("r");
+  let centre = {x: lens.attr("cx"), y: lens.attr("cy")};
+
+  // change the magic lens' radius
   slider.addEventListener("input", (e) => {
-      svg.select("#lens")
-          .attr("r", e.target.value);
+      lens.attr("r", e.target.value);
+      radius = e.target.value;
   });
 
+  // change the functionality of the magic lens
   document.querySelectorAll('input[name="lens"]').forEach(radio => {
     radio.addEventListener("change", () => {
       var selectedOption = document.querySelector('input[name="lens"]:checked').value;
           // Perform actions based on the selectedOption value
       if (selectedOption === "inactive") {
-        lensActivity = false;
+        lensActivity = 0;
+        centre.x = 100;
+        centre.y = 100;
         svg.select("#lens")
           .attr("cx", 100)
           .attr("cy", 100);
+          radius = 60;
         slider.value = 60;
         svg.select("#lens")
           .attr("r", 60);
         slider.disabled = true;
       } else {
-        lensActivity = true;
         slider.disabled = false;
       }
       if (selectedOption === "node") {
+        lensActivity = 1;
       } else if (selectedOption === "edge") {
+        lensActivity = 2;
       }
     }
     );
@@ -126,16 +161,14 @@ async function main() {
     const mouse = { x: e.originalEvent.x, y: e.originalEvent.y };
     console.log(`Mouse position: [x: ${mouse.x}, y: ${mouse.y}]`);
 
-    cy.nodes().forEach((n) => {
-      const node = n.renderedPosition(); // Careful: other position functions may invoke different coordinate systems
-
-      // console.log(`Node position: [x: ${node.x}, y: ${node.y}]`);
-    });
-
-    if (lensActivity){
-      svg.select("#lens")
-          .attr("cx", mouse.x)
+    if (lensActivity != 0){
+      lens.attr("cx", mouse.x)
           .attr("cy", mouse.y);
+
+      centre.x = mouse.x;
+      centre.y = mouse.y;
+
+      magicLens(cy, lensActivity, centre, radius);
     }
     
     /* 
