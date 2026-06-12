@@ -1,5 +1,6 @@
 edge highlight functionality vs local edge lens (Tominski et al.)
 
+difference 1:
 - the edge highlight functionality is an *encode* interaction technique
 in which the edges connected to nodes within the lens are simply encoded with a colour dissimilar to the 
 ones that are not
@@ -9,6 +10,7 @@ not connected to nodes within the lens are filtered out
 --> ultimately, one could say that the edge highlight functionality *adds* something to the 
 encoding while the local edge lens *removes* something from the encoding
 
+difference 2:
 - additionally, the local edge lens overlays the space around the lens with a semi-transparent
 plane so as to further focus on the inside of the lens
 - in the edge highlight functionality the outside of the lens is not altered at all
